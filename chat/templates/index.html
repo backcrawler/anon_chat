@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>WS</title>
+</head>
+
+<body>
+  <h2>Hello, pal</h2>
+  <script>
+    function makeid() {
+      let text = "";
+      let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      for (let i = 0; i < 8; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+      return text;
+    }
+
+    async function makeConn() {
+      let url = "http://127.0.0.1:8885/link/";
+      const code =  makeid()
+      let req = {"code": code};
+      let response = await fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json;charset=utf-8'},
+        body: JSON.stringify(req)
+      });
+      if (response.ok) {
+        let json = await response.json();
+        var ws = new WebSocket(`ws://127.0.0.1:8885/${code}/`);
+        ws.onopen = function (e) {
+          console.log("OPENED");
+          ws.send("Hi from" + code);
+        }
+        ws.onclose = function (e) {
+          ws.send("Last bits");
+        }
+        ws.onmessage = function(e) {
+          console.log(e.data);
+        }
+      } else {
+        alert("Ошибка HTTP: " + response.status);
+      }
+    }
+    makeConn();
+  </script>
+</body>
+
+</html>
